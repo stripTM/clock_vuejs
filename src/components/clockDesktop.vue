@@ -1,7 +1,11 @@
 <template>
   <section class="clock" ref="clock">
-    <div class="hour">{{ time|date2HHMM }}</div>
-    <div class="day">{{ time|date2DDMM }}</div>
+    <div class="hour portrait">
+      <span class="digit">{{ time|date2Hour }}</span>
+      <span class="digit">{{ time|date2Minute }}</span>
+    </div>
+    <div class="hour landscape">{{ time|date2HourMinute }}</div>
+    <div class="day">{{ time|date2DayMonth }}</div>
   </section>
 </template>
 
@@ -16,13 +20,20 @@ export default {
     this.emitResize()
   },
   filters: {
-    date2HHMM(d) {
+    date2Hour(d) {
+      const hour = d.getHours()
+      return hour < 10 ? `0${hour}` : hour
+    },
+    date2Minute(d) {
+      const minute = d.getMinutes()
+      return minute < 10 ? `0${minute}` : minute
+    },
+    date2HourMinute(d) {
       const options = { hour: 'numeric', minute: 'numeric'}
-      // , second: 'numeric'
       // hour12: false,
       return new Intl.DateTimeFormat('es-ES', options).format(d)
     },
-    date2DDMM(d) {
+    date2DayMonth(d) {
       const options = { day: 'numeric', weekday: 'short', month: 'short' }
       return new Intl.DateTimeFormat('es-ES', options).format(d)
     }

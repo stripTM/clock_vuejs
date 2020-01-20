@@ -1,5 +1,5 @@
 <template>
-  <div id="app" ref="app">
+  <div id="app" ref="app" v-on:click="toggleFullscreen">
     <transition name="move">
       <clockDesktop :time="now" :style="getStyle" v-show="!position.moving" @resize="changeClockSize"/>
     </transition>
@@ -38,36 +38,28 @@ export default {
   created() {
     this.now = new Date()
     // Sincronizar los interval con el segundo 0
-    //const millisecsToZero = 1000 * (60 - new Date().getSeconds())
-     const millisecsToZero = 100
+    const millisecsToZero = 1000 * (60 - new Date().getSeconds())
     window.setTimeout(
       () => {
         this.now = new Date()
+        // Refresco de la fecha cada minuto
         this.intervalID = window.setInterval(
-          () => { this.now = new Date() },
-           1000 * 1 //60
-        )},
-      millisecsToZero
-    )
-    // Movimiento aleatorio del reloj dentro de la pantall
-    window.setInterval(
-      () => {
-        this.position = {
-          moving: true
-        }
-        window.setTimeout(
-          () => {
-            this.position = {
-              moving: false,
-              top: Math.round( Math.random() * 100 ),
-              left: Math.round( Math.random() * 100 )
-            }
-          },
-          800
+          this.update,
+          1000 * 60 //60
         )
       },
-      100003
+      millisecsToZero
     )
+
+    // Pantalla completa
+    document.fullscreenElement = document.fullscreenElement
+      || document.mozFullscreenElement
+      || document.msFullscreenElement
+      || document.webkitFullscreenDocument
+    document.exitFullscreen = document.exitFullscreen
+      || document.mozExitFullscreen
+      || document.msExitFullscreen
+      || document.webkitExitFullscreen;
   },
   mounted() {
     window.onresize = this.setAppSize
@@ -78,6 +70,31 @@ export default {
     this.intervalID = null
   },
   methods: {
+    update() {
+      const now = new Date()
+      // Lanzar animación aleatoriamente
+      const withAnimation = Math.random() > 0.8
+      if (withAnimation) {
+        // Movimiento aleatorio del reloj dentro de la pantalla
+        this.position = {
+          moving: true
+        }
+        window.setTimeout(
+          () => {
+            this.position = {
+              moving: false,
+              top: Math.round( Math.random() * 100 ),
+              left: Math.round( Math.random() * 100 )
+            }
+            this.now = now
+          },
+          800
+        )
+      }
+      else {
+        this.now = now
+      }
+    },
     changeClockSize( dimension ) {
       /* eslint-disable */
       //console.log ( 'clock out', dimension )
@@ -88,6 +105,22 @@ export default {
       this.appSize = {
         width: this.$refs.app.clientWidth,
         height: this.$refs.app.clientHeight
+      }
+    },
+    toggleFullscreen() {
+      let elem = this.$refs.app
+
+      elem.requestFullscreen = elem.requestFullscreen || elem.mozRequestFullscreen
+              || elem.msRequestFullscreen || elem.webkitRequestFullscreen;
+
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().then({}).catch(err => {
+          alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
       }
     }
   },
@@ -123,11 +156,14 @@ body {
   text-align: center;
 }
 .hour {
-  font-size: 27vw;
-  line-height: 25vw;
+  font-size: 60vw;
+  line-height: 58vw;
+}
+.hour .digit {
+  display: block;
 }
 .day {
-  font-size: 6vw;
+  font-size: 10vw;
 }
 .move-enter-active {
   transition: opacity .8s ease, transform .8s ease;
@@ -139,11 +175,25 @@ body {
   transform: scale(0.8);
   opacity: 0;
 }
-
+.portrait {
+  display: block;
+}
+.landscape {
+  display: none;
+}
 @media (orientation: landscape) {
+  .portrait {
+    display: none;
+  }
+  .landscape {
+    display: block;
+  }
   .hour {
     font-size: 30vw;
     line-height: 28vw;
+  }
+  .day {
+    font-size: 6vw;
   }
 }
 </style>
