@@ -14,6 +14,8 @@ export default {
   name: 'clockDesktop',
   props: ['time'],
   mounted() {
+    // Cambio de orientación de pantalla
+    window.addEventListener('resize', this.emitResize)
     this.emitResize()
   },
   updated() {

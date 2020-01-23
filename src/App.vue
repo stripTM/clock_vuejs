@@ -62,7 +62,8 @@ export default {
       || document.webkitExitFullscreen;
   },
   mounted() {
-    window.onresize = this.setAppSize
+    // Cambio de orientación de pantalla
+    window.addEventListener('resize', this.setAppSize)
     this.setAppSize()
   },
   destroyed() {
