@@ -66,7 +66,7 @@ export default {
     window.addEventListener('resize', this.setAppSize)
     this.setAppSize()
   },
-  destroyed() {
+  unmounted() {
     window.clearInterval(this.intervalID)
     this.intervalID = null
   },
@@ -172,7 +172,7 @@ body {
 .move-leave-active {
   transition: opacity .8s ease, transform .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
-.move-enter, .move-leave-to {
+.move-enter-from, .move-leave-to {
   transform: scale(0.8);
   opacity: 0;
 }
